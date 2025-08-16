@@ -744,3 +744,66 @@
     color: var(--color-primary);
     text-decoration: underline;
 }
+
+/* Tambahkan ini di file dashboard-styles.css Anda */
+
+.canvasser-card .stock-info {
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Memberi jarak antar baris */
+}
+
+.canvasser-card .stock-alokasi .total-stock {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+.canvasser-card .stock-sell-in {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.canvasser-card .stock-sell-in .sell-in-stock {
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+/* [BARU] Gaya untuk Collapsible Section */
+.collapsible-section .table-header {
+    cursor: pointer;
+}
+
+.collapsible-section .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.collapsible-section .toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-section.expanded .toggle-btn {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    border-top: 1px solid transparent; /* Mencegah double border */
+}
+
+.collapsible-section.expanded .collapsible-content {
+    max-height: 1000px; /* Sesuaikan jika tabel lebih tinggi */
+    border-top: 1px solid #f0f0f0;
+    padding-top: 1rem; /* Memberi jarak setelah header */
+    margin-top: 1rem; /* Memberi jarak dari header */
+}

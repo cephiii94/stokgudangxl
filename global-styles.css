@@ -172,13 +172,30 @@ body {
     font-size: 0.8rem;
     font-weight: 500;
     text-transform: capitalize;
+    display: inline-block;
 }
+/* Jenis */
 .tag-kartu-perdana { background-color: #e0f2fe; color: #0ea5e9; }
 .tag-voucher { background-color: #e0e7ff; color: #6366f1; }
+/* Tipe */
 .tag-kosongan { background-color: #f1f5f9; color: #64748b; }
 .tag-paket { background-color: #dcfce7; color: #22c55e; }
+/* Provider */
+.tag-provider-xl { 
+    background-color: #dbeafe; /* Biru muda */
+    color: #2563eb; 
+}
+.tag-provider-axis { 
+    background-color: #ede9fe; /* Ungu muda */
+    color: #7c3aed; 
+}
+.tag-provider-smartfren { 
+    background-color: #fee2e2; /* Merah muda */
+    color: #dc2626; 
+}
 
-/* =============== [DIUBAH] General Component: QR Code Modal Styles =============== */
+
+/* =============== General Component: QR Code Modal Styles =============== */
 .qrcode-info-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -246,7 +263,7 @@ body {
     border-bottom: none;
 }
 
-/* =============== [BARU] Gaya untuk tabel di dalam modal rincian =============== */
+/* =============== General Component: Tabel di dalam Modal =============== */
 .table-wrapper {
     overflow-x: auto;
 }

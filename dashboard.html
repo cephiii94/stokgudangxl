@@ -71,30 +71,36 @@
                 <!-- Di-generate oleh JavaScript -->
             </section>
 
-            <!-- Tabel Stok Gudang -->
-            <section class="detail-product-table">
-                <div class="table-header">
+            <!-- [DIPERBARUI] Tabel Stok Gudang (Collapsible) -->
+            <section class="detail-product-table collapsible-section">
+                <div class="table-header collapsible-header" id="gudangTableHeader">
                     <h3>Rincian Stok Gudang</h3>
-                    <div class="search-wrapper-detail">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="gudangSearchInput" placeholder="Cari produk di gudang...">
+                    <div class="header-controls">
+                        <div class="search-wrapper-detail">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="gudangSearchInput" placeholder="Cari produk...">
+                        </div>
+                        <button class="toggle-btn"><i class="fas fa-chevron-down"></i></button>
                     </div>
                 </div>
-                <div class="table-wrapper">
-                    <table id="gudangTable">
-                        <thead>
-                            <tr>
-                                <th>Nama Produk</th>
-                                <th>Provider</th>
-                                <th>Jenis</th>
-                                <th>Tipe</th>
-                                <th>Stok</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gudangTableBody">
-                            <!-- Di-generate oleh JavaScript -->
-                        </tbody>
-                    </table>
+                <div class="collapsible-content" id="gudangTableContent">
+                    <div class="table-wrapper">
+                        <table id="gudangTable">
+                            <thead>
+                                <tr>
+                                    <th>Nama Produk</th>
+                                    <th>Provider</th>
+                                    <th>Jenis</th>
+                                    <th>Tipe</th>
+                                    <th>Stok</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gudangTableBody">
+                                <!-- Di-generate oleh JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -116,7 +122,8 @@
                                 <th>Provider</th>
                                 <th>Jenis</th>
                                 <th>Tipe</th>
-                                <th>Stok</th>
+                                <th>Stok Alokasi</th>
+                                <th>Stok Sell In</th>
                             </tr>
                         </thead>
                         <tbody id="canvasserTableBody">
@@ -128,6 +135,24 @@
         </main>
     </div>
 
+    <!-- Modal untuk Rincian SN -->
+    <div id="snDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Rincian Serial Number</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <ul id="snList">
+                    <!-- Di-generate oleh JavaScript -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Gunakan data-loader.js terlebih dahulu -->
+    <script src="data-loader.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

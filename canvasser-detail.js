@@ -1,228 +1,148 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // --- DATA ---
-    const allProducts = [
-        // Data untuk Ali Akbar
-        { canvasser: 'Ali Akbar', provider: 'xl', jenis: 'kartu-perdana', tipe: 'paket', nama: 'Perdana XL 10GB', items: [{id: '896001'}, {id: '896002'}, {id: '896003'}, {id: '896004'}, {id: '896005'}] },
-        { canvasser: 'Ali Akbar', provider: 'xl', jenis: 'kartu-perdana', tipe: 'kosongan', nama: 'Perdana XL Kosongan', items: [{id: '897001'}, {id: '897002'}, {id: '897003'}] },
-        { canvasser: 'Ali Akbar', provider: 'axis', jenis: 'voucher', tipe: 'paket', nama: 'Voucher Axis AIGO 5GB', items: [{id: 'AX5001'}, {id: 'AX5002'}, {id: 'AX5003'}, {id: 'AX5004'}, {id: 'AX5005'}, {id: 'AX5006'}] },
-        { canvasser: 'Ali Akbar', provider: 'smartfren', jenis: 'voucher', tipe: 'kosongan', nama: 'Voucher SF Kosongan', items: [{id: 'SF001'}, {id: 'SF002'}] },
-        
-        // Data untuk Yanuar Efendi
-        { canvasser: 'Yanuar Efendi', provider: 'xl', jenis: 'voucher', tipe: 'paket', nama: 'Voucher XL Xtra Combo', items: [{id: 'XLX01'}, {id: 'XLX02'}, {id: 'XLX03'}] },
-        { canvasser: 'Yanuar Efendi', provider: 'axis', jenis: 'kartu-perdana', tipe: 'paket', nama: 'Perdana Axis 8GB', items: [{id: '85901'}, {id: '85902'}, {id: '85903'}, {id: '85904'}] },
-        { canvasser: 'Yanuar Efendi', provider: 'smartfren', jenis: 'kartu-perdana', tipe: 'kosongan', nama: 'Perdana SF Kosongan', items: [{id: '88101'}, {id: '88102'}, {id: '88103'}, {id: '88104'}, {id: '88105'}] },
+document.addEventListener('dataReady', function() {
+    const allProducts = window.processedData;
+    
+    const canvasserName = new URLSearchParams(window.location.search).get('name');
+    const canvasserProducts = allProducts.filter(p => p.canvasser === canvasserName);
 
-        // Data untuk Yusril
-        { canvasser: 'Yusril', provider: 'xl', jenis: 'kartu-perdana', tipe: 'kosongan', nama: 'Perdana XL Kosongan', items: [{id: '897004'}, {id: '897005'}, {id: '897006'}] },
-        { canvasser: 'Yusril', provider: 'axis', jenis: 'voucher', tipe: 'paket', nama: 'Voucher Axis AIGO 12GB', items: [{id: 'AX1201'}, {id: 'AX1202'}, {id: 'AX1203'}, {id: 'AX1204'}, {id: 'AX1205'}] },
-        { canvasser: 'Yusril', provider: 'smartfren', jenis: 'voucher', tipe: 'paket', nama: 'Voucher SF Unlimited', items: [{id: 'SFU01'}, {id: 'SFU02'}, {id: 'SFU03'}] },
-    ];
-
-    // --- STATE ---
-    let currentCanvasserProducts = [];
-    let qrCodeInstance = null; // Untuk menyimpan instance QRCode
-
-    // --- DOM ELEMENTS ---
+    // DOM Elements
     const canvasserNameTitle = document.getElementById('canvasserNameTitle');
     const summaryCardsContainer = document.getElementById('summaryCardsContainer');
-    const chartContainer = document.getElementById('chartContainer');
     const productTableBody = document.getElementById('productTableBody');
     const productSearchInput = document.getElementById('productSearchInput');
+    const chartContainer = document.getElementById('chartContainer');
+
+    // Modal Elements
     const qrCodeModal = document.getElementById('qrCodeModal');
     const qrCodeModalTitle = document.getElementById('qrCodeModalTitle');
     const serialNumberHeader = document.getElementById('serialNumberHeader');
     const serialNumberTableBody = document.getElementById('serialNumberTableBody');
     const closeQrCodeBtn = document.getElementById('closeQrCodeBtn');
-    const qrcodeValue = document.getElementById('qrcodeValue');
     const qrcodeContainer = document.getElementById('qrcode');
+    const qrcodeValue = document.getElementById('qrcodeValue');
 
-
-    // --- FUNCTIONS ---
-
-    function getCanvasserNameFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('name');
+    // Fungsi untuk format angka ke format ribuan Indonesia
+    function formatNumber(num) {
+        return Number(num).toLocaleString('id-ID');
     }
 
-    function getProductsByCanvasser(name) {
-        return allProducts.filter(p => p.canvasser === name);
+    function displayCanvasserInfo() {
+        canvasserNameTitle.textContent = `Detail Stok: ${canvasserName}`;
     }
 
-    function displayCanvasserInfo(name) {
-        canvasserNameTitle.textContent = `Detail Stok: ${name}`;
-    }
-
-    function displaySummaryCards(products) {
-        const totalStok = products.reduce((sum, p) => sum + p.items.length, 0);
-        const uniqueProductCount = products.length;
+    function displaySummaryCards() {
+        let totalAlokasi = 0;
+        let totalSellIn = 0;
+        canvasserProducts.forEach(p => {
+            p.items.forEach(item => {
+                if (item.status === 'Alokasi') totalAlokasi++;
+                else if (item.status === 'Sell In') totalSellIn++;
+            });
+        });
 
         summaryCardsContainer.innerHTML = `
-            <div class="detail-summary-card">
-                <i class="fas fa-box-open"></i>
-                <div class="card-info">
-                    <span class="value">${totalStok}</span>
-                    <span class="label">Total Stok Unit</span>
-                </div>
-            </div>
-            <div class="detail-summary-card">
-                <i class="fas fa-tags"></i>
-                <div class="card-info">
-                    <span class="value">${uniqueProductCount}</span>
-                    <span class="label">Jenis Produk</span>
-                </div>
-            </div>
+            <div class="detail-summary-card"><i class="fas fa-boxes-stacked"></i><div class="card-info"><span class="value">${formatNumber(totalAlokasi)}</span><span class="label">Total Stok Alokasi</span></div></div>
+            <div class="detail-summary-card"><i class="fas fa-hand-holding-dollar"></i><div class="card-info"><span class="value">${formatNumber(totalSellIn)}</span><span class="label">Total Stok Sell In</span></div></div>
+            <div class="detail-summary-card"><i class="fas fa-tags"></i><div class="card-info"><span class="value">${formatNumber(canvasserProducts.length)}</span><span class="label">Jenis Produk</span></div></div>
         `;
     }
-    
-    function displayStockChart(products) {
-        const stockByProvider = products.reduce((acc, p) => {
-            acc[p.provider] = (acc[p.provider] || 0) + p.items.length;
-            return acc;
-        }, {});
 
-        const maxStock = Math.max(...Object.values(stockByProvider), 1);
-        
-        let chartHTML = '';
-        const providerColors = { xl: '#4a90e2', axis: '#8b5cf6', smartfren: '#ef4444' };
-
-        for (const provider in stockByProvider) {
-            const stock = stockByProvider[provider];
-            const heightPercentage = (stock / maxStock) * 100;
-            chartHTML += `
-                <div class="chart-bar-wrapper">
-                    <div class="chart-bar" style="height: ${heightPercentage}%; background-color: ${providerColors[provider] || '#ccc'};">
-                        <span class="bar-label">${stock}</span>
-                    </div>
-                    <span class="bar-title">${provider.toUpperCase()}</span>
-                </div>
-            `;
-        }
-        chartContainer.innerHTML = chartHTML;
-    }
-
-    function displayProductTable(products, searchTerm = '') {
+    function displayProductTable(searchTerm = '') {
+        const filteredData = canvasserProducts.filter(p => p.nama.toLowerCase().includes(searchTerm.toLowerCase()));
         productTableBody.innerHTML = '';
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        
-        const filteredProducts = products.filter(p => 
-            p.nama.toLowerCase().includes(lowerCaseSearchTerm)
-        );
-
-        if (filteredProducts.length === 0) {
-            productTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Produk tidak ditemukan.</td></tr>';
+        if (filteredData.length === 0) {
+            productTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Data tidak ditemukan.</td></tr>';
             return;
         }
-
-        filteredProducts.forEach(p => {
-            const stok = p.items.length;
+        filteredData.forEach(p => {
+            const alokasiCount = p.items.filter(i => i.status === 'Alokasi').length;
+            const sellInCount = p.items.filter(i => i.status === 'Sell In').length;
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${p.nama}</td>
-                <td><span class="tag tag-${p.jenis}">${p.jenis.replace('-', ' ')}</span></td>
-                <td><span class="tag tag-${p.tipe}">${p.tipe}</span></td>
-                <td>${stok}</td>
-                <td>
-                    <button class="action-btn" data-product-name="${p.nama}">
-                        <i class="fas fa-eye"></i> Lihat Detail
-                    </button>
-                </td>
+                <td><span class="tag tag-provider-${p.provider}">${p.provider.toUpperCase()}</span></td>
+                <td><span class="tag tag-${p.jenis.replace('-', '')}">${p.jenis.replace('-', ' ')}</span></td>
+                <td>${formatNumber(alokasiCount)}</td>
+                <td>${formatNumber(sellInCount)}</td>
+                <td>${alokasiCount > 0 ? `<button class="action-btn" data-product-name="${p.nama}"><i class="fas fa-qrcode"></i> Lihat Detail</button>` : '-' }</td>
             `;
             productTableBody.appendChild(row);
         });
     }
 
     function generateQrCode(text) {
-        qrcodeContainer.innerHTML = ''; // Kosongkan QR code sebelumnya
+        qrcodeContainer.innerHTML = '';
         if (text) {
-            new QRCode(qrcodeContainer, {
-                text: text,
-                width: 160,
-                height: 160,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            new QRCode(qrcodeContainer, { text, width: 160, height: 160 });
             qrcodeValue.textContent = text;
         } else {
-             qrcodeValue.textContent = 'Tidak ada data';
+            qrcodeValue.textContent = 'Tidak ada data';
         }
     }
 
     function openQrCodeModal(product) {
         if (!product) return;
-
-        qrCodeModalTitle.textContent = `Rincian: ${product.nama}`;
-        const headerText = product.jenis === 'kartu-perdana' ? 'MSISDN' : 'Serial Number';
-        serialNumberHeader.textContent = headerText;
-
-        serialNumberTableBody.innerHTML = ''; 
-        product.items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.dataset.id = item.id; // Tambahkan data-id untuk identifikasi
-            row.innerHTML = `<td>${item.id}</td>`;
-            // Tandai baris pertama sebagai aktif
-            if (index === 0) {
-                row.classList.add('active');
-            }
-            serialNumberTableBody.appendChild(row);
-        });
-
-        // Generate QR code dari item pertama
-        const firstId = product.items[0]?.id;
-        generateQrCode(firstId);
+        qrCodeModalTitle.textContent = `Rincian SN (Alokasi): ${product.nama}`;
+        serialNumberHeader.textContent = product.jenis === 'kartu-perdana' ? 'MSISDN' : 'Serial Number';
+        
+        serialNumberTableBody.innerHTML = '';
+        const alokasiItems = product.items.filter(item => item.status === 'Alokasi');
+        
+        if (alokasiItems.length > 0) {
+            alokasiItems.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.dataset.id = item.id;
+                row.innerHTML = `<td>${index + 1}</td><td>${item.id}</td>`;
+                if (index === 0) row.classList.add('active');
+                serialNumberTableBody.appendChild(row);
+            });
+            generateQrCode(alokasiItems[0]?.id);
+        } else {
+            serialNumberTableBody.innerHTML = '<tr><td colspan="2" style="text-align: center;">Tidak ada SN untuk produk ini.</td></tr>';
+            generateQrCode(null);
+        }
 
         qrCodeModal.classList.add('show');
     }
 
-    function closeQrCodeModal() {
+    function closeModal() {
         qrCodeModal.classList.remove('show');
     }
 
-    // --- EVENT LISTENERS ---
-    productSearchInput.addEventListener('input', (e) => {
-        displayProductTable(currentCanvasserProducts, e.target.value);
-    });
-
-    productTableBody.addEventListener('click', (e) => {
-        const detailButton = e.target.closest('.action-btn');
-        if (detailButton) {
-            const productName = detailButton.dataset.productName;
-            const product = currentCanvasserProducts.find(p => p.nama === productName);
+    // Event Listeners
+    productSearchInput.addEventListener('input', (e) => displayProductTable(e.target.value));
+    
+    productTableBody.addEventListener('click', function(event) {
+        const actionBtn = event.target.closest('.action-btn');
+        if (actionBtn) {
+            const productName = actionBtn.dataset.productName;
+            const product = canvasserProducts.find(p => p.nama === productName);
             openQrCodeModal(product);
         }
     });
-    
-    // [BARU] Event listener untuk klik pada tabel serial number
+
     serialNumberTableBody.addEventListener('click', (e) => {
         const clickedRow = e.target.closest('tr');
-        if (!clickedRow) return;
-
-        const allRows = serialNumberTableBody.querySelectorAll('tr');
-        allRows.forEach(row => row.classList.remove('active')); // Hapus kelas aktif dari semua baris
-
-        clickedRow.classList.add('active'); // Tambahkan kelas aktif ke baris yang diklik
-        
-        const idToGenerate = clickedRow.dataset.id;
-        generateQrCode(idToGenerate);
+        if (!clickedRow || !clickedRow.dataset.id) return;
+        serialNumberTableBody.querySelectorAll('tr').forEach(row => row.classList.remove('active'));
+        clickedRow.classList.add('active');
+        generateQrCode(clickedRow.dataset.id);
     });
 
-    closeQrCodeBtn.addEventListener('click', closeQrCodeModal);
-    qrCodeModal.addEventListener('click', (e) => {
-        if (e.target === qrCodeModal) {
-            closeQrCodeModal();
+    closeQrCodeBtn.addEventListener('click', closeModal);
+
+    window.addEventListener('click', (event) => {
+        if (event.target == qrCodeModal) {
+            closeModal();
         }
     });
 
-    // --- INITIALIZATION ---
-    const canvasserName = getCanvasserNameFromURL();
+    // Initialization
     if (canvasserName) {
-        currentCanvasserProducts = getProductsByCanvasser(canvasserName);
-        
-        displayCanvasserInfo(canvasserName);
-        displaySummaryCards(currentCanvasserProducts);
-        displayStockChart(currentCanvasserProducts);
-        displayProductTable(currentCanvasserProducts);
+        displayCanvasserInfo();
+        displaySummaryCards();
+        displayProductTable();
+        // displayProviderChart(); // This function is not defined in the provided code
     } else {
-        document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Canvasser tidak ditemukan.</h1><a href="index.html" style="display: block; text-align: center;">Kembali ke Home</a>';
+        document.body.innerHTML = "<h1>Canvasser tidak ditemukan.</h1>";
     }
 });

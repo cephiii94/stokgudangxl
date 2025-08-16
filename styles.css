@@ -754,15 +754,26 @@ body {
     
     /* Card adjustments */
     .summary-cards {
-        grid-template-columns: 1fr;
+        /* [DIUBAH] Mengubah layout menjadi flexbox dengan horizontal scroll */
+        display: flex;
+        overflow-x: auto;
         gap: 1rem;
+        /* Menambahkan padding agar scrollbar tidak menutupi bayangan kartu */
+        padding-bottom: 1rem; 
+        /* Menghilangkan scrollbar visual untuk tampilan yang lebih bersih */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
     }
     
     .canvasser-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
+    .summary-cards::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, and Opera */
+    }
+
     /* Modal adjustments */
     .modal-content {
         width: 95%;
@@ -798,6 +809,11 @@ body {
         font-size: 2rem;
     }
     
+    .summary-card {
+        /* [DIUBAH] Memberi lebar tetap agar kartu tidak menyusut */
+        flex: 0 0 180px; /* flex-grow, flex-shrink, flex-basis */
+    }
+
     .section-header h2 {
         font-size: 1.25rem;
     }
@@ -828,6 +844,11 @@ body {
         padding: 1rem;
     }
     
+    /* [DITAMBAHKAN] Menyesuaikan lebar kartu untuk layar yang sangat kecil agar tidak terlalu besar */
+    .summary-card {
+        flex-basis: 160px;
+    }
+
     .modal-content {
         padding: 1rem;
     }
