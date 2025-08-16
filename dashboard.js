@@ -1,4 +1,12 @@
 document.addEventListener('dataReady', function() {
+    const loader = document.getElementById('loader-overlay');
+    if (loader) {
+        // Hide the loader when data is ready and rendered
+        setTimeout(() => {
+            loader.classList.add('hidden');
+        }, 300); // A small delay to ensure a smooth transition
+    }
+
     const allProducts = window.processedData;
     const gudangSummary = window.gudangSummary || [];
     const stokCanvasser = allProducts.filter(p => p.lokasi === 'Canvasser');

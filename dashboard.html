@@ -14,6 +14,20 @@
     <link rel="stylesheet" href="dashboard-styles.css">
 </head>
 <body>
+    <!-- Mobile Top Navbar (shown only on mobile) -->
+    <nav class="mobile-navbar">
+        <div class="mobile-navbar-content">
+            <div class="mobile-logo">STOK GUDANG | PPU</div>
+            <div class="mobile-user">
+                <i class="fas fa-user-circle"></i>
+                <span>Cecep</span>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loader-overlay">
+        <div class="loader"></div>
+    </div>
     <div class="container">
         <!-- =============== Sidebar (Sama seperti di index.html) =============== -->
         <aside class="sidebar">
@@ -56,7 +70,7 @@
         </aside>
 
         <!-- =============== Konten Utama Dasbor =============== -->
-        <main class="main-content">
+        <main class.="main-content">
             <header class="main-header">
                 <h1>Dashboard Rincian Stok</h1>
                 <div class="header-icons">
@@ -149,6 +163,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Bottom Navigation (shown only on mobile) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="index.html" class="bottom-nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="dashboard.html" class="bottom-nav-item active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="bottom-nav-item">
+                <i class="fas fa-signal"></i>
+                <span>Status</span>
+            </a>
+        </div>
+    </nav>
 
 
     <!-- Gunakan data-loader.js terlebih dahulu -->
