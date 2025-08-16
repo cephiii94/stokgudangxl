@@ -462,7 +462,7 @@ body {
 
 @media (max-width: 768px) {
     .container {
-        grid-template-columns: 1fr;
+        display: block; /* FIX: Change grid to block for simpler layout */
     }
     .sidebar {
         position: fixed;
@@ -475,6 +475,7 @@ body {
         padding: 0.5rem 0;
         z-index: 1000;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        background: white;
     }
     .sidebar-header, .sidebar-footer {
         display: none;
@@ -500,6 +501,7 @@ body {
         display: block;
     }
     .main-content {
+        /* grid-column is no longer needed */
         padding: 1rem;
         margin-bottom: 80px; /* space for bottom nav */
     }
