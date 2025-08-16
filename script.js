@@ -133,7 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
             contentHTML += `<li><span class="product-name">${name}</span><span class="product-stock">${productTotals[name].stok} pcs</span></li>`;
         }
         contentHTML += '</ul>';
-        contentHTML += `<div class="modal-footer"><button class="expand-btn">Lihat Halaman Rinci <i class="fas fa-arrow-right"></i></button></div>`;
+        // Tambahkan data-canvasser-name ke tombol untuk digunakan nanti
+        contentHTML += `<div class="modal-footer"><button class="expand-btn" data-canvasser-name="${canvasserName}">Lihat Halaman Rinci <i class="fas fa-arrow-right"></i></button></div>`;
         
         modalBody.innerHTML = contentHTML;
         detailModal.classList.add('show');
@@ -170,6 +171,19 @@ document.addEventListener('DOMContentLoaded', function() {
     modalSearchInput.addEventListener('input', (e) => {
         renderModalList(e.target.value);
     });
+
+    // --- [BARU] EVENT LISTENER UNTUK TOMBOL DI DALAM MODAL ---
+    // Menggunakan event delegation pada modal body
+    modalBody.addEventListener('click', function(e) {
+        if (e.target.classList.contains('expand-btn')) {
+            const canvasserName = e.target.dataset.canvasserName;
+            if (canvasserName) {
+                // Arahkan ke halaman detail dengan nama canvasser sebagai parameter URL
+                window.location.href = `canvasser-detail.html?name=${encodeURIComponent(canvasserName)}`;
+            }
+        }
+    });
+
 
     // --- INITIALIZATION ---
     syncFilterButtons();
