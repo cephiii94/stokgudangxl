@@ -360,8 +360,8 @@
     font-size: 1.2rem;
 }
 
-/* =============== Canvasser Detail Page =============== */
-.detail-container {
+/* =============== Canvasser Detail Page & Dashboard Page =============== */
+.detail-container, .dashboard-container { /* Menambah .dashboard-container */
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
@@ -480,7 +480,6 @@
     font-family: 'Poppins', sans-serif;
 }
 
-
 .chart-container {
     display: flex;
     justify-content: space-around;
@@ -525,34 +524,36 @@
     overflow-x: auto;
 }
 
-#productTable {
+/* [DIPERBAIKI] Aturan ini sekarang berlaku untuk semua tabel di dalam .detail-product-table */
+.detail-product-table table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
 }
 
-#productTable th, #productTable td {
+.detail-product-table table th, 
+.detail-product-table table td {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid #f0f0f0;
     vertical-align: middle;
 }
 
-#productTable th {
+.detail-product-table table th {
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--color-text-secondary);
 }
 
-#productTable td {
+.detail-product-table table td {
     font-size: 0.95rem;
     color: var(--color-text-dark);
 }
 
-#productTable tbody tr:last-child td {
+.detail-product-table table tbody tr:last-child td {
     border-bottom: none;
 }
 
-/* [DIUBAH] QR Code Modal Styles */
+/* QR Code Modal Styles */
 .qrcode-info-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -675,4 +676,71 @@
 @media (max-width: 480px) {
     .main-content { padding: 0.75rem; }
     .summary-card, .canvasser-card { padding: 1rem; }
+}
+
+/* =============== Dashboard Page Specifics =============== */
+
+.dashboard-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.dashboard-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.dashboard-summary-card i {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    background-color: var(--color-background);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+}
+
+.dashboard-summary-card .card-info .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    display: block;
+}
+
+.dashboard-summary-card .card-info .label {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+/* Penyesuaian untuk header di halaman dashboard */
+.main-content > .main-header h1 {
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+/* [BARU] Gaya untuk link di dalam tabel */
+.detail-product-table table .table-link {
+    color: var(--color-text-dark);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.detail-product-table table .table-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
 }
