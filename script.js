@@ -34,31 +34,44 @@ document.addEventListener('dataReady', function() {
 
     // --- FUNCTIONS ---
 
-    // [DIPERBARUI] Fungsi untuk format angka
+    // Fungsi untuk format angka
     function formatNumber(num) {
         return Number(num).toLocaleString('id-ID');
     }
 
-    // [DIPERBARUI] Menggunakan gudangSummary untuk data stok gudang
+    // [DIUBAH] Fungsi populateStokGudang untuk menangani klik saat filter 'paket' aktif
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
 
+        // Filter produk berdasarkan filter aktif (jenis & tipe)
         const filteredProducts = gudangSummary.filter(p => 
             (activeFilters.jenis ? p.jenis === activeFilters.jenis : true) && 
             (activeFilters.tipe ? p.tipe === activeFilters.tipe : true)
         );
 
+        // Hitung total stok per provider dari produk yang sudah difilter
         const totals = filteredProducts.reduce((acc, p) => {
             acc[p.provider] = (acc[p.provider] || 0) + p.stok;
             return acc;
-        }, { xl: 0, axis: 0, smartfren: 0 });
+        }, {});
 
         gudangSummaryContainer.innerHTML = '';
         const providers = { xl: 'XL', axis: 'Axis', smartfren: 'Smartfren' };
+        
+        // Cek apakah filter 'paket' sedang aktif
+        const isPaketActive = activeFilters.tipe === 'paket';
+
         for (const key in providers) {
             const card = document.createElement('div');
             card.className = 'summary-card';
             card.innerHTML = `<h4>${providers[key]}</h4><p class="amount">${formatNumber(totals[key] || 0)}</p>`;
+            
+            // Jika filter 'paket' aktif dan ada stok, buat kartu bisa di-klik
+            if (isPaketActive && (totals[key] || 0) > 0) {
+                card.classList.add('clickable');
+                card.dataset.provider = key; // Tambahkan data-provider untuk identifikasi
+            }
+            
             gudangSummaryContainer.appendChild(card);
         }
     }
@@ -106,6 +119,42 @@ document.addEventListener('dataReady', function() {
             const value = item.dataset.filterValue;
             item.classList.toggle('active', activeFilters[group] === value);
         });
+    }
+
+    // [DITAMBAHKAN] Fungsi untuk membuka modal rincian stok gudang (paket)
+    function openGudangDetailModal(providerName) {
+        // Filter produk berdasarkan semua filter aktif dan provider yang dipilih
+        const productsToShow = gudangSummary.filter(p => 
+            p.provider === providerName &&
+            p.jenis === activeFilters.jenis &&
+            p.tipe === activeFilters.tipe
+        );
+
+        // Atur judul modal secara dinamis
+        const providerDisplayName = providerName.charAt(0).toUpperCase() + providerName.slice(1);
+        modalTitle.textContent = `Rincian Stok Paket ${providerDisplayName}`;
+        
+        // Buat tabel HTML untuk body modal
+        let tableHTML = `<div class="table-wrapper"><table class="detail-modal-table"><thead><tr><th>Nama Produk</th><th>Total Stok</th></tr></thead><tbody>`;
+        
+        if (productsToShow.length > 0) {
+            productsToShow.forEach(product => {
+                tableHTML += `
+                    <tr>
+                        <td>${product.nama}</td>
+                        <td>${formatNumber(product.stok)}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tableHTML += `<tr><td colspan="2">Tidak ada produk paket yang tersedia untuk provider ini.</td></tr>`;
+        }
+
+        tableHTML += `</tbody></table></div>`;
+        
+        modalBody.innerHTML = tableHTML;
+        modalFooter.innerHTML = ''; // Kosongkan footer karena tidak diperlukan
+        detailModal.classList.add('show'); // Tampilkan modal
     }
 
     function openCanvasserModal(canvasserName) {
@@ -173,7 +222,18 @@ document.addEventListener('dataReady', function() {
                 const value = e.target.dataset.filterValue;
                 activeFilters[group] = value;
                 syncFilterButtons();
-                populateStokGudang();
+                populateStokGudang(); // Panggil ulang untuk update tampilan kartu
+            }
+        });
+    }
+
+    // [DITAMBAHKAN] Event listener untuk klik pada kartu provider di stok gudang
+    if (gudangSummaryContainer) {
+        gudangSummaryContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.summary-card.clickable');
+            if (card) {
+                const provider = card.dataset.provider;
+                openGudangDetailModal(provider);
             }
         });
     }

@@ -13,6 +13,17 @@
     <!-- Link ke CSS -->
     <link rel="stylesheet" href="global-styles.css">
     <link rel="stylesheet" href="dashboard-styles.css">
+    <!-- [DITAMBAHKAN] Style untuk kartu yang bisa di-klik -->
+    <style>
+        .summary-card.clickable {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .summary-card.clickable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
     <!-- Mobile Top Navbar (shown only on mobile) -->
@@ -153,7 +164,7 @@
         </div>
     </div>
 
-    <!-- =============== [DIUBAH] Modal untuk QR Code & Serial Number =============== -->
+    <!-- =============== Modal untuk QR Code & Serial Number =============== -->
     <div id="qrCodeModal" class="modal">
         <div class="modal-content modal-lg">
             <div class="modal-header">
@@ -182,7 +193,7 @@
         </div>
     </div>
 
-    <!-- [DIUBAH] Library untuk generate QR Code -->
+    <!-- Library untuk generate QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="data-loader.js"></script>
     <script src="script.js"></script>
