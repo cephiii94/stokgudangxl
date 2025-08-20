@@ -86,7 +86,8 @@
 
 .main-header {
     display: flex;
-    justify-content: space-between;
+    /* [DIUBAH] Mengubah perataan untuk header tanpa search bar */
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 2rem;
 }
@@ -119,6 +120,7 @@
     gap: 1.5rem;
     font-size: 1.3rem;
     color: var(--color-text-secondary);
+    align-items: center; /* [DITAMBAHKAN] Agar ikon sejajar */
 }
 
 .header-icons i {
@@ -130,6 +132,86 @@
     color: var(--color-primary);
 }
 
+/* =============== [BARU] Gaya untuk Notifikasi =============== */
+.notification-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: flex; /* [DITAMBAHKAN] Agar dot sejajar dengan bell */
+    align-items: center;
+}
+
+.notification-dot {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff3b30; /* Warna merah notifikasi */
+    border-radius: 50%;
+    border: 2px solid var(--color-background); /* Sesuaikan dengan warna background header */
+}
+
+.notification-dropdown {
+    display: none; /* Sembunyi secara default */
+    position: absolute;
+    top: 180%; /* Posisi di bawah ikon lonceng */
+    right: -15px;
+    width: 340px;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    z-index: 100;
+    overflow: hidden;
+    transform-origin: top right;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.notification-dropdown.show {
+    display: block;
+}
+
+.notification-header {
+    padding: 1rem 1.2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--color-text-dark);
+}
+
+#notification-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+#notification-list li {
+    padding: 1rem 1.2rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+#notification-list li:last-child {
+    border-bottom: none;
+}
+
+#notification-list li strong {
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+
+#notification-list li.no-notif {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #9ca3af;
+}
+
+/* Lanjutan CSS lainnya... (tidak diubah) */
 .stock-section {
     margin-bottom: 3rem;
 }
@@ -619,9 +701,9 @@
     .bottom-nav { display: block; }
     .container { display: block; grid-template-columns: none; }
     .main-content { padding: 1rem; margin-top: 70px; margin-bottom: 70px; width: 100%; min-height: calc(100vh - 140px); }
-    .main-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+    .main-header { flex-direction: row; gap: 1rem; align-items: center; } /* Diubah agar tetap sebaris */
     .search-wrapper { width: 100%; max-width: none; }
-    .header-icons { justify-content: center; }
+    .header-icons { justify-content: flex-end; flex-grow: 1; }
     
     /* [DIUBAH] Mengatur kartu menjadi 2 kolom di layar kecil */
     .summary-cards, .canvasser-grid { 
@@ -704,7 +786,9 @@
 .main-content > .main-header h1 {
     font-weight: 600;
     color: var(--color-text-dark);
+    margin-right: auto; /* Mendorong ikon ke kanan */
 }
+
 
 /* [BARU] Gaya untuk link di dalam tabel */
 .detail-product-table table .table-link {

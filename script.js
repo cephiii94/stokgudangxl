@@ -25,6 +25,12 @@ document.addEventListener('dataReady', function() {
     const qrcodeValue = document.getElementById('qrcodeValue');
     const qrcodeContainer = document.getElementById('qrcode');
 
+    // [BARU] Modal Info
+    const infoModal = document.getElementById('infoModal');
+    const infoIcon = document.getElementById('info-icon');
+    const closeInfoBtn = document.getElementById('closeInfoBtn');
+
+
     // --- STATE ---
     let activeFilters = {
         jenis: 'kartu-perdana',
@@ -227,6 +233,66 @@ document.addEventListener('dataReady', function() {
         qrCodeModal.classList.add('show');
     }
 
+    // --- FUNGSI UNTUK NOTIFIKASI ---
+    function setupNotifications() {
+        const bellWrapper = document.querySelector('.notification-wrapper');
+        if (!bellWrapper) return;
+
+        const notificationDot = bellWrapper.querySelector('.notification-dot');
+        const notificationDropdown = bellWrapper.querySelector('.notification-dropdown');
+        const notificationList = document.getElementById('notification-list');
+        const timestamps = window.updateTimestamps;
+        const today = new Date();
+        let newNotifications = [];
+
+        const monthMap = { 'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11 };
+
+        function isDateToday(dateString) {
+            if (!dateString || typeof dateString !== 'string') return false;
+            
+            const parts = dateString.split(' '); 
+            if (parts.length !== 3) return false;
+            
+            const day = parseInt(parts[0], 10);
+            const month = monthMap[parts[1]];
+            const year = parseInt(parts[2], 10);
+
+            if (isNaN(day) || month === undefined || isNaN(year)) return false;
+
+            const updateDate = new Date(year, month, day);
+            
+            return today.getFullYear() === updateDate.getFullYear() &&
+                   today.getMonth() === updateDate.getMonth() &&
+                   today.getDate() === updateDate.getDate();
+        }
+
+        if (timestamps && timestamps.gudang && isDateToday(timestamps.gudang)) {
+            newNotifications.push(`<li><strong>Stok Gudang</strong> telah diperbarui pada ${timestamps.gudang}.</li>`);
+        }
+
+        if (timestamps && timestamps.canvassers) {
+            for (const canvasserName in timestamps.canvassers) {
+                const date = timestamps.canvassers[canvasserName];
+                if (isDateToday(date)) {
+                    newNotifications.push(`<li><strong>Stok ${canvasserName}</strong> telah diperbarui pada ${date}.</li>`);
+                }
+            }
+        }
+
+        if (newNotifications.length > 0) {
+            notificationDot.style.display = 'block';
+            notificationList.innerHTML = newNotifications.join('');
+        } else {
+            notificationList.innerHTML = '<li class="no-notif">Tidak ada pembaruan hari ini.</li>';
+        }
+
+        bellWrapper.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+            notificationDot.style.display = 'none';
+        });
+    }
+
     // --- EVENT LISTENERS ---
     if (filterGroup) {
         filterGroup.addEventListener('click', (e) => {
@@ -278,16 +344,46 @@ document.addEventListener('dataReady', function() {
         });
     }
 
-    if (closeDetailBtn) {
-        closeDetailBtn.addEventListener('click', () => detailModal.classList.remove('show'));
+    // Event listener untuk menutup semua modal
+    function setupModalClosers() {
+        const allModals = document.querySelectorAll('.modal');
+        allModals.forEach(modal => {
+            const closeBtn = modal.querySelector('.close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+            }
+        });
+        window.addEventListener('click', (event) => {
+            allModals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
     }
-    if (closeQrCodeBtn) {
-        closeQrCodeBtn.addEventListener('click', () => qrCodeModal.classList.remove('show'));
+
+    // [BARU] Event listener untuk info modal
+    if (infoIcon) {
+        infoIcon.addEventListener('click', () => {
+            if (infoModal) infoModal.classList.add('show');
+        });
     }
+
+    // Event listener untuk menutup dropdown notifikasi
+    document.addEventListener('click', (e) => {
+        const dropdown = document.querySelector('.notification-dropdown');
+        const bellWrapper = document.querySelector('.notification-wrapper');
+        if (dropdown && dropdown.classList.contains('show') && !bellWrapper.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
 
     // --- INITIALIZATION ---
     displayGudangUpdateTime();
     populateStokGudang();
     populateStokCanvasser();
     syncFilterButtons();
+    setupNotifications();
+    setupModalClosers(); // Panggil fungsi penutup modal
 });

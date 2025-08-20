@@ -84,13 +84,19 @@
         <main class="main-content">
             <!-- Header -->
             <header class="main-header">
-                <div class="search-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="search" placeholder="Cari di sini...">
-                </div>
                 <div class="header-icons">
-                    <i class="fas fa-bell"></i>
-                    <i class="fas fa-info-circle"></i>
+                    <div class="notification-wrapper">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-dot" style="display: none;"></span>
+                        <div class="notification-dropdown">
+                            <div class="notification-header">Notifikasi</div>
+                            <ul id="notification-list">
+                                <!-- Konten notifikasi akan diisi oleh JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- [DIUBAH] Menambahkan ID untuk event listener -->
+                    <i class="fas fa-info-circle" id="info-icon"></i>
                     <i class="fas fa-cog"></i>
                 </div>
             </header>
@@ -101,7 +107,6 @@
                 <section class="stock-section">
                     <div class="section-header">
                         <h2>Stok Gudang</h2>
-                        <!-- Elemen ini tetap untuk tanggal dari sheet 'totalstok' -->
                         <small class="update-timestamp" id="gudang-update-time"></small>
                         <a href="dashboard.html" class="see-all" id="see-all-gudang">See All</a>
                     </div>
@@ -125,7 +130,6 @@
                 <section class="stock-section">
                     <div class="section-header">
                         <h2>Stok Canvasser</h2>
-                        <!-- [DIHAPUS] Penanda waktu di sini dihapus -->
                     </div>
                     <div class="canvasser-grid" id="canvasser-grid">
                         <!-- Canvasser cards will be populated by JavaScript -->
@@ -197,6 +201,38 @@
             </div>
         </div>
     </div>
+    
+    <!-- =============== [BARU] Modal Informasi Aplikasi =============== -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Informasi Aplikasi</h3>
+                <span class="close-btn" id="closeInfoBtn">&times;</span>
+            </div>
+            <div class="modal-body info-modal-body">
+                <div class="info-section">
+                    <h4>Tentang Aplikasi</h4>
+                    <p>Aplikasi ini dirancang untuk memantau dan mengelola stok gudang serta stok yang didistribusikan ke canvasser secara real-time. Data diambil langsung dari Google Sheets untuk kemudahan pembaruan.</p>
+                </div>
+                <div class="info-section">
+                    <h4>Versi</h4>
+                    <p>Versi 1.1.0</p>
+                </div>
+                <div class="info-section">
+                    <h4>Bantuan & Laporan</h4>
+                    <p>Jika Anda menemukan masalah, data tidak sesuai, atau memiliki saran, jangan ragu untuk menghubungi:</p>
+                    <div class="contact-info">
+                        <a href="mailto:cecephard12@gmail.com" class="contact-link"><i class="fas fa-envelope"></i> Email Pengembang</a>
+                        <a href="https://wa.me/628xxxxxxxxxx" target="_blank" class="contact-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    </div>
+                </div>
+                 <div class="info-footer">
+                    Dibuat dengan ❤️ untuk PPU
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Library untuk generate QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
