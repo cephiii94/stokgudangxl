@@ -8,19 +8,15 @@ function getSheetCsvUrl(baseUrl, sheetName) {
     return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 }
 
-// [DIPERBARUI] Fungsi untuk mengubah teks CSV menjadi array objek JSON yang lebih andal
+// Fungsi untuk mengubah teks CSV menjadi array objek JSON
 function csvToJson(csv) {
-    // Hapus baris kosong di akhir jika ada
     const lines = csv.trim().split('\n');
-    if (lines.length < 2) return []; // Kembalikan array kosong jika tidak ada data
-
-    // Ambil header dan hapus kutip ganda yang mungkin ada
+    if (lines.length < 2) return [];
     const headers = lines.shift().split(',').map(header => header.replace(/^"|"$/g, '').trim());
     const jsonResult = [];
 
     lines.forEach(line => {
         const obj = {};
-        // Regex untuk mem-parsing baris CSV, menangani field yang dikutip
         const values = [];
         let current = '';
         let inQuotes = false;
@@ -45,20 +41,23 @@ function csvToJson(csv) {
                 obj[header] = values[i];
             });
             jsonResult.push(obj);
-        } else {
-            console.warn('Baris CSV dilewati karena jumlah kolom tidak cocok:', line);
         }
     });
 
     return jsonResult;
 }
 
-
 // Fungsi utama untuk mengambil dan memproses semua data
 async function fetchAndProcessData() {
     console.log("Mulai mengambil data...");
     const allItems = [];
     let gudangSummaryData = [];
+    
+    // [BARU] Objek untuk menyimpan timestamp
+    window.updateTimestamps = {
+        gudang: null,
+        canvassers: {}
+    };
 
     for (const sheetName of SHEET_NAMES) {
         const url = getSheetCsvUrl(GOOGLE_SHEET_URL, sheetName);
@@ -73,7 +72,16 @@ async function fetchAndProcessData() {
 
             if (sheetName === 'totalstok') {
                 gudangSummaryData = jsonData;
+                // [BARU] Ambil timestamp dari baris pertama data
+                if (jsonData.length > 0 && jsonData[0].LastUpdate) {
+                    window.updateTimestamps.gudang = jsonData[0].LastUpdate;
+                }
             } else {
+                // [BARU] Jika ini sheet canvasser, ambil timestamp-nya
+                if (sheetName !== 'Gudang' && jsonData.length > 0 && jsonData[0].LastUpdate) {
+                    window.updateTimestamps.canvassers[sheetName] = jsonData[0].LastUpdate;
+                }
+
                 jsonData.forEach(item => {
                     if (sheetName === 'Gudang') {
                         item.Lokasi = 'Gudang';
@@ -91,7 +99,7 @@ async function fetchAndProcessData() {
         }
     }
 
-    // Proses data ringkasan gudang dari sheet 'totalstok'
+    // Proses data ringkasan gudang
     window.gudangSummary = gudangSummaryData.map(item => ({
         nama: (item.NamaProduk || '').trim(),
         provider: (item.Provider || '').toLowerCase().trim(),
@@ -100,10 +108,10 @@ async function fetchAndProcessData() {
         stok: parseInt(item.Total, 10) || 0
     }));
 
-    // Mengelompokkan item berdasarkan NamaProduk, Provider, Jenis, Tipe, dan Canvasser untuk detail SN
+    // Mengelompokkan item berdasarkan produk
     const groupedData = allItems.reduce((acc, item) => {
         const trimmedNamaProduk = (item.NamaProduk || '').trim();
-        if (!trimmedNamaProduk) return acc; // Lewati jika nama produk kosong
+        if (!trimmedNamaProduk) return acc;
 
         const key = `${trimmedNamaProduk}-${item.Canvasser || 'Gudang'}`;
         if (!acc[key]) {

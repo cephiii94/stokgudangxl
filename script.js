@@ -1,7 +1,7 @@
 // Menunggu event 'dataReady' dari data-loader.js
 document.addEventListener('dataReady', function() {
     const allProducts = window.processedData;
-    const gudangSummary = window.gudangSummary || []; // Menggunakan data ringkasan gudang
+    const gudangSummary = window.gudangSummary || [];
     const stokCanvasser = allProducts.filter(p => p.lokasi === 'Canvasser');
 
     // --- DOM ELEMENTS ---
@@ -34,22 +34,30 @@ document.addEventListener('dataReady', function() {
 
     // --- FUNCTIONS ---
 
+    // Fungsi untuk menampilkan tanggal update gudang
+    function displayGudangUpdateTime() {
+        const gudangTimestampEl = document.getElementById('gudang-update-time');
+        if (gudangTimestampEl && window.updateTimestamps && window.updateTimestamps.gudang) {
+            gudangTimestampEl.textContent = `Diperbarui: ${window.updateTimestamps.gudang}`;
+        } else if (gudangTimestampEl) {
+            gudangTimestampEl.textContent = 'Tanggal tidak ditemukan';
+        }
+    }
+
     // Fungsi untuk format angka
     function formatNumber(num) {
         return Number(num).toLocaleString('id-ID');
     }
 
-    // [DIUBAH] Fungsi populateStokGudang untuk menangani klik saat filter 'paket' aktif
+    // Fungsi untuk mengisi kartu stok gudang
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
 
-        // Filter produk berdasarkan filter aktif (jenis & tipe)
         const filteredProducts = gudangSummary.filter(p => 
             (activeFilters.jenis ? p.jenis === activeFilters.jenis : true) && 
             (activeFilters.tipe ? p.tipe === activeFilters.tipe : true)
         );
 
-        // Hitung total stok per provider dari produk yang sudah difilter
         const totals = filteredProducts.reduce((acc, p) => {
             acc[p.provider] = (acc[p.provider] || 0) + p.stok;
             return acc;
@@ -58,7 +66,6 @@ document.addEventListener('dataReady', function() {
         gudangSummaryContainer.innerHTML = '';
         const providers = { xl: 'XL', axis: 'Axis', smartfren: 'Smartfren' };
         
-        // Cek apakah filter 'paket' sedang aktif
         const isPaketActive = activeFilters.tipe === 'paket';
 
         for (const key in providers) {
@@ -66,16 +73,16 @@ document.addEventListener('dataReady', function() {
             card.className = 'summary-card';
             card.innerHTML = `<h4>${providers[key]}</h4><p class="amount">${formatNumber(totals[key] || 0)}</p>`;
             
-            // Jika filter 'paket' aktif dan ada stok, buat kartu bisa di-klik
             if (isPaketActive && (totals[key] || 0) > 0) {
                 card.classList.add('clickable');
-                card.dataset.provider = key; // Tambahkan data-provider untuk identifikasi
+                card.dataset.provider = key;
             }
             
             gudangSummaryContainer.appendChild(card);
         }
     }
 
+    // Fungsi untuk mengisi kartu stok canvasser
     function populateStokCanvasser() {
         if (!canvasserGridContainer) return;
 
@@ -84,11 +91,8 @@ document.addEventListener('dataReady', function() {
                 acc[p.canvasser] = { alokasi: 0, sellIn: 0 };
             }
             p.items.forEach(item => {
-                if (item.status === 'Alokasi') {
-                    acc[p.canvasser].alokasi++;
-                } else if (item.status === 'Sell In') {
-                    acc[p.canvasser].sellIn++;
-                }
+                if (item.status === 'Alokasi') acc[p.canvasser].alokasi++;
+                else if (item.status === 'Sell In') acc[p.canvasser].sellIn++;
             });
             return acc;
         }, {});
@@ -97,8 +101,16 @@ document.addEventListener('dataReady', function() {
         for (const name in canvasserSummary) {
             const card = document.createElement('div');
             card.className = 'canvasser-card';
+            
+            const updateTime = window.updateTimestamps.canvassers[name] || 'N/A';
+
             card.innerHTML = `
-                <h4>${name}</h4>
+                <div class="canvasser-card-header">
+                    <h4>${name}</h4>
+                    <small class="update-timestamp-card">
+                        <i class="fas fa-clock"></i> ${updateTime}
+                    </small>
+                </div>
                 <div class="stock-info">
                     <div class="stock-alokasi">
                         Stok Alokasi: <span class="total-stock">${formatNumber(canvasserSummary[name].alokasi)}</span>
@@ -113,6 +125,7 @@ document.addEventListener('dataReady', function() {
         }
     }
     
+    // Fungsi untuk sinkronisasi tombol filter
     function syncFilterButtons() {
         document.querySelectorAll('.filter-item').forEach(item => {
             const group = item.dataset.filterGroup;
@@ -121,20 +134,17 @@ document.addEventListener('dataReady', function() {
         });
     }
 
-    // [DITAMBAHKAN] Fungsi untuk membuka modal rincian stok gudang (paket)
+    // Fungsi untuk membuka modal detail stok gudang (paket)
     function openGudangDetailModal(providerName) {
-        // Filter produk berdasarkan semua filter aktif dan provider yang dipilih
         const productsToShow = gudangSummary.filter(p => 
             p.provider === providerName &&
             p.jenis === activeFilters.jenis &&
             p.tipe === activeFilters.tipe
         );
 
-        // Atur judul modal secara dinamis
         const providerDisplayName = providerName.charAt(0).toUpperCase() + providerName.slice(1);
         modalTitle.textContent = `Rincian Stok Paket ${providerDisplayName}`;
         
-        // Buat tabel HTML untuk body modal
         let tableHTML = `<div class="table-wrapper"><table class="detail-modal-table"><thead><tr><th>Nama Produk</th><th>Total Stok</th></tr></thead><tbody>`;
         
         if (productsToShow.length > 0) {
@@ -153,10 +163,11 @@ document.addEventListener('dataReady', function() {
         tableHTML += `</tbody></table></div>`;
         
         modalBody.innerHTML = tableHTML;
-        modalFooter.innerHTML = ''; // Kosongkan footer karena tidak diperlukan
-        detailModal.classList.add('show'); // Tampilkan modal
+        modalFooter.innerHTML = '';
+        detailModal.classList.add('show');
     }
 
+    // Fungsi untuk membuka modal detail canvasser
     function openCanvasserModal(canvasserName) {
         currentCanvasserProducts = stokCanvasser.filter(p => p.canvasser === canvasserName);
         modalTitle.textContent = `Rincian Stok: ${canvasserName}`;
@@ -184,6 +195,7 @@ document.addEventListener('dataReady', function() {
         detailModal.classList.add('show');
     }
 
+    // Fungsi untuk membuat QR Code
     function generateQrCode(text) {
         qrcodeContainer.innerHTML = '';
         if (text) {
@@ -194,6 +206,7 @@ document.addEventListener('dataReady', function() {
         }
     }
 
+    // Fungsi untuk membuka modal QR Code
     function openQrCodeModal(product) {
         if (!product) return;
         qrCodeModalTitle.textContent = `Rincian SN (Alokasi): ${product.nama}`;
@@ -222,12 +235,11 @@ document.addEventListener('dataReady', function() {
                 const value = e.target.dataset.filterValue;
                 activeFilters[group] = value;
                 syncFilterButtons();
-                populateStokGudang(); // Panggil ulang untuk update tampilan kartu
+                populateStokGudang();
             }
         });
     }
 
-    // [DITAMBAHKAN] Event listener untuk klik pada kartu provider di stok gudang
     if (gudangSummaryContainer) {
         gudangSummaryContainer.addEventListener('click', (e) => {
             const card = e.target.closest('.summary-card.clickable');
@@ -274,6 +286,7 @@ document.addEventListener('dataReady', function() {
     }
 
     // --- INITIALIZATION ---
+    displayGudangUpdateTime();
     populateStokGudang();
     populateStokCanvasser();
     syncFilterButtons();

@@ -141,6 +141,14 @@
     margin-bottom: 0.5rem;
 }
 
+.section-header .update-timestamp {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-left: 1rem; /* Memberi jarak dari judul */
+    margin-right: auto; /* Mendorong elemen "See All" ke kanan */
+}
+
 .section-header h2 {
     font-weight: 600;
     color: var(--color-text-dark);
@@ -228,14 +236,38 @@
     gap: 1rem;
 }
 
-.canvasser-card h4 {
+.canvasser-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.75rem;
+    margin-bottom: -0.5rem; /* Menyesuaikan jarak */
+}
+
+.canvasser-card-header h4 {
     font-weight: 600;
     color: var(--color-text-dark);
+    margin: 0;
+}
+
+/* [BARU] Gaya untuk tanggal di dalam kartu */
+.update-timestamp-card {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 .canvasser-card .stock-info {
     font-size: 0.9rem;
 }
+
 
 .canvasser-card .stock-info .total-stock {
     font-weight: 700;
@@ -553,73 +585,6 @@
     border-bottom: none;
 }
 
-/* QR Code Modal Styles */
-.qrcode-info-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: flex-start;
-}
-.qrcode-display {
-    text-align: center;
-    background: var(--color-background);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-.qrcode-display h4, .serial-number-list h4 {
-    font-weight: 600;
-    color: var(--color-text-dark);
-    margin-bottom: 1rem;
-}
-.qrcode-display #qrcode {
-    padding: 10px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.qrcode-display p {
-    margin-top: 1rem;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    letter-spacing: 1px;
-    word-break: break-all;
-}
-.table-wrapper-modal {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #eee;
-    border-radius: 8px;
-}
-#serialNumberTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-#serialNumberTable tr {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-#serialNumberTable tr:hover {
-    background-color: var(--color-background);
-}
-#serialNumberTable tr.active {
-    background-color: var(--color-primary);
-    color: white;
-    font-weight: 600;
-}
-#serialNumberTable td {
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.9rem;
-}
-#serialNumberTable tr:last-child td {
-    border-bottom: none;
-}
-
-
 /* =============== Responsive Design for Dashboard =============== */
 @media (max-width: 1200px) {
     .container {
@@ -656,9 +621,15 @@
     .main-header { flex-direction: column; gap: 1rem; align-items: stretch; }
     .search-wrapper { width: 100%; max-width: none; }
     .header-icons { justify-content: center; }
-    .summary-cards, .canvasser-grid { grid-template-columns: 1fr; gap: 1rem; }
+    
+    /* [DIUBAH] Mengatur kartu menjadi 2 kolom di layar kecil */
+    .summary-cards, .canvasser-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 1rem; 
+    }
+
     .modal-search-wrapper { width: 100%; max-width: none; }
-    .filter-row { flex-wrap: wrap; gap: 0.25rem; }
+    .filter-row { font-size: 0.8rem; flex-wrap: wrap; gap: 0.25rem; }
     :root { --card-padding: 1rem; }
     .summary-card .amount { font-size: 2rem; }
     .section-header h2 { font-size: 1.25rem; }
@@ -668,14 +639,16 @@
     .detail-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
     .detail-summary-cards { gap: 1rem; }
     .detail-stock-chart, .detail-product-table { padding: 1rem; }
-
-    /* QR Code Modal Mobile */
-    .qrcode-info-container { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
     .main-content { padding: 0.75rem; }
     .summary-card, .canvasser-card { padding: 1rem; }
+
+    /* [OPSIONAL] Jika 2 kolom terlalu sempit di layar sangat kecil, kembalikan ke 1 kolom */
+    .summary-cards, .canvasser-grid { 
+        grid-template-columns: 1fr; 
+    }
 }
 
 /* =============== Dashboard Page Specifics =============== */

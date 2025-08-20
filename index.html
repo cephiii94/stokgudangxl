@@ -99,6 +99,8 @@
                 <section class="stock-section">
                     <div class="section-header">
                         <h2>Stok Gudang</h2>
+                        <!-- Elemen ini tetap untuk tanggal dari sheet 'totalstok' -->
+                        <small class="update-timestamp" id="gudang-update-time"></small>
                         <a href="dashboard.html" class="see-all" id="see-all-gudang">See All</a>
                     </div>
                     <!-- Filter Group -->
@@ -121,6 +123,7 @@
                 <section class="stock-section">
                     <div class="section-header">
                         <h2>Stok Canvasser</h2>
+                        <!-- [DIHAPUS] Penanda waktu di sini dihapus -->
                     </div>
                     <div class="canvasser-grid" id="canvasser-grid">
                         <!-- Canvasser cards will be populated by JavaScript -->
@@ -129,7 +132,7 @@
             </div>
         </main>
     </div>
-
+    
     <!-- Bottom Navigation (shown only on mobile) -->
     <nav class="bottom-nav">
         <div class="bottom-nav-content">
