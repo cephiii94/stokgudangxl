@@ -229,6 +229,9 @@ body {
 /* Jenis */
 .tag-kartu-perdana { background-color: #e0f2fe; color: #0ea5e9; }
 .tag-voucher { background-color: #e0e7ff; color: #6366f1; }
+/* [DITAMBAHKAN] Style untuk tag Dompul */
+.tag-dompul { background-color: #fefce8; color: #a16207; }
+
 /* Tipe */
 .tag-kosongan { background-color: #f1f5f9; color: #64748b; }
 .tag-paket { background-color: #dcfce7; color: #22c55e; }

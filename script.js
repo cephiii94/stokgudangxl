@@ -55,38 +55,58 @@ document.addEventListener('dataReady', function() {
         return Number(num).toLocaleString('id-ID');
     }
 
-    // Fungsi untuk mengisi kartu stok gudang
+    // [DIUBAH] Fungsi untuk mengisi kartu stok gudang dengan logika baru untuk Dompul
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
 
-        const filteredProducts = gudangSummary.filter(p => 
-            (activeFilters.jenis ? p.jenis === activeFilters.jenis : true) && 
+        // 1. Filter produk untuk kartu provider berdasarkan filter yang aktif
+        const filteredProducts = gudangSummary.filter(p =>
+            (activeFilters.jenis ? p.jenis === activeFilters.jenis : true) &&
             (activeFilters.tipe ? p.tipe === activeFilters.tipe : true)
         );
 
+        // 2. Hitung total untuk setiap provider dari data yang sudah difilter
         const totals = filteredProducts.reduce((acc, p) => {
-            acc[p.provider] = (acc[p.provider] || 0) + p.stok;
+            if (p.provider) { // Pastikan provider ada
+                acc[p.provider] = (acc[p.provider] || 0) + p.stok;
+            }
             return acc;
         }, {});
 
-        gudangSummaryContainer.innerHTML = '';
+        gudangSummaryContainer.innerHTML = ''; // Bersihkan kartu sebelumnya
         const providers = { xl: 'XL', axis: 'Axis', smartfren: 'Smartfren' };
-        
         const isPaketActive = activeFilters.tipe === 'paket';
 
+        // 3. Tampilkan kartu untuk setiap provider
         for (const key in providers) {
             const card = document.createElement('div');
             card.className = 'summary-card';
             card.innerHTML = `<h4>${providers[key]}</h4><p class="amount">${formatNumber(totals[key] || 0)}</p>`;
-            
+
             if (isPaketActive && (totals[key] || 0) > 0) {
                 card.classList.add('clickable');
                 card.dataset.provider = key;
             }
-            
             gudangSummaryContainer.appendChild(card);
         }
+
+        // 4. Logika tambahan: Tampilkan kartu Dompul jika kondisi terpenuhi
+        if (activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
+            // Ambil total stok dari semua produk dengan tipe 'dompul'
+            const totalDompul = gudangSummary
+                .filter(p => p.tipe === 'dompul')
+                .reduce((sum, p) => sum + p.stok, 0);
+
+            // Buat dan tambahkan kartu Dompul jika stoknya ada
+            if (totalDompul > 0) {
+                const dompulCard = document.createElement('div');
+                dompulCard.className = 'summary-card';
+                dompulCard.innerHTML = `<h4>Dompul</h4><p class="amount">${formatNumber(totalDompul)}</p>`;
+                gudangSummaryContainer.appendChild(dompulCard);
+            }
+        }
     }
+
 
     // Fungsi untuk mengisi kartu stok canvasser
     function populateStokCanvasser() {
