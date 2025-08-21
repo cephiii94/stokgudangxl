@@ -155,8 +155,94 @@ body {
     color: #9ca3af;
 }
 
+/* ... (CSS yang sudah ada sebelumnya) ... */
+
+/* =============== [BARU] Gaya untuk Tab di Modal =============== */
+.modal-tabs {
+    display: flex;
+    padding: 0 2rem;
+    border-bottom: 1px solid #eee;
+    margin-top: -1.5rem; /* Menarik tab ke atas */
+}
+.tab-btn {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+.tab-btn:hover {
+    color: var(--color-text-dark);
+}
+.tab-btn.active {
+    color: var(--color-primary);
+    font-weight: 600;
+    border-bottom: 3px solid var(--color-primary);
+}
+.tab-content.hidden {
+    display: none;
+}
+
+/* =============== [BARU] Gaya untuk Konten Pengumuman =============== */
+.announcement-item {
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.2rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.announcement-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.announcement-header h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+.announcement-header h5 i {
+    margin-right: 0.6rem;
+    font-size: 1rem;
+    /* Memberi warna berbeda untuk setiap tipe ikon */
+}
+.announcement-header h5 i.fa-info-circle {
+    color: var(--color-primary); /* Biru */
+}
+.announcement-header h5 i.fa-triangle-exclamation {
+    color: #f59e0b; /* Kuning/Amber */
+}
+.announcement-header h5 i.fa-wrench {
+    color: #6366f1; /* Ungu/Indigo */
+}
+.announcement-header .date {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+.announcement-item p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+}
+.no-announcement {
+    text-align: center;
+    padding: 2rem 0;
+    color: #9ca3af;
+}
 
 /* =============== General Component: Buttons =============== */
+
 .detail-btn {
     margin-top: auto;
     background: var(--color-background);
@@ -369,7 +455,25 @@ body {
     }
     /* QR Code Modal Mobile */
     .qrcode-info-container { grid-template-columns: 1fr; }
+
+    /* =============== [BARU] Penyesuaian Font untuk Mobile =============== */
+
+    /* Mengatur ulang ukuran font dasar pada elemen root (HTML) */
+    html {
+        font-size: 14.5px; /* Anda bisa coba antara 14px hingga 15px */
+    }
+
+    /* Penyesuaian spesifik jika diperlukan (opsional) */
+    .detail-summary-card .card-info .value,
+    .dashboard-summary-card .card-info .value {
+        font-size: 1.8rem; /* Sedikit mengurangi ukuran angka besar di kartu ringkasan */
+    }
+
+    .summary-card .amount {
+        font-size: 1.9rem;
+    }
 }
+
 
 @media (max-width: 480px) {
     .modal-header, .modal-body, .modal-footer {

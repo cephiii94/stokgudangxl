@@ -1,6 +1,7 @@
 // Konfigurasi Aplikasi
 const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ZgVsEy-2l4aREU5C4rnn2X7FptYZj0KtgswA8ojL-40/edit?usp=sharing'; // GANTI DENGAN LINK ANDA
-const SHEET_NAMES = ['Gudang', 'Ali Akbar', 'Yanuar Efendi', 'Yusril', 'totalstok']; // Tambahkan nama canvasser baru di sini
+// [DITAMBAHKAN] Nama sheet 'Pengumuman'
+const SHEET_NAMES = ['Gudang', 'Ali Akbar', 'Yanuar Efendi', 'Yusril', 'totalstok', 'Pengumuman']; 
 
 // Fungsi untuk mengubah link Google Sheet menjadi link unduhan CSV
 function getSheetCsvUrl(baseUrl, sheetName) {
@@ -53,7 +54,9 @@ async function fetchAndProcessData() {
     const allItems = [];
     let gudangSummaryData = [];
     
-    // [BARU] Objek untuk menyimpan timestamp
+    // [BARU] Variabel global untuk data pengumuman
+    window.pengumumanData = [];
+    
     window.updateTimestamps = {
         gudang: null,
         canvassers: {}
@@ -72,12 +75,13 @@ async function fetchAndProcessData() {
 
             if (sheetName === 'totalstok') {
                 gudangSummaryData = jsonData;
-                // [BARU] Ambil timestamp dari baris pertama data
                 if (jsonData.length > 0 && jsonData[0].LastUpdate) {
                     window.updateTimestamps.gudang = jsonData[0].LastUpdate;
                 }
+            } else if (sheetName === 'Pengumuman') {
+                // [BARU] Menyimpan data dari sheet Pengumuman
+                window.pengumumanData = jsonData;
             } else {
-                // [BARU] Jika ini sheet canvasser, ambil timestamp-nya
                 if (sheetName !== 'Gudang' && jsonData.length > 0 && jsonData[0].LastUpdate) {
                     window.updateTimestamps.canvassers[sheetName] = jsonData[0].LastUpdate;
                 }

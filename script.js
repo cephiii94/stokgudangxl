@@ -25,7 +25,7 @@ document.addEventListener('dataReady', function() {
     const qrcodeValue = document.getElementById('qrcodeValue');
     const qrcodeContainer = document.getElementById('qrcode');
 
-    // [BARU] Modal Info
+    // Modal Info
     const infoModal = document.getElementById('infoModal');
     const infoIcon = document.getElementById('info-icon');
     const closeInfoBtn = document.getElementById('closeInfoBtn');
@@ -55,7 +55,7 @@ document.addEventListener('dataReady', function() {
         return Number(num).toLocaleString('id-ID');
     }
 
-    // [DIUBAH] Fungsi untuk mengisi kartu stok gudang dengan logika baru untuk Dompul
+    // Fungsi untuk mengisi kartu stok gudang
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
 
@@ -65,13 +65,14 @@ document.addEventListener('dataReady', function() {
             (activeFilters.tipe ? p.tipe === activeFilters.tipe : true)
         );
 
-        // 2. Hitung total untuk setiap provider dari data yang sudah difilter
+        // 2. Hitung total untuk setiap provider dari produk yang sudah difilter
         const totals = filteredProducts.reduce((acc, p) => {
-            if (p.provider) { // Pastikan provider ada
+            if (p.provider) { 
                 acc[p.provider] = (acc[p.provider] || 0) + p.stok;
             }
             return acc;
         }, {});
+
 
         gudangSummaryContainer.innerHTML = ''; // Bersihkan kartu sebelumnya
         const providers = { xl: 'XL', axis: 'Axis', smartfren: 'Smartfren' };
@@ -88,16 +89,25 @@ document.addEventListener('dataReady', function() {
                 card.dataset.provider = key;
             }
             gudangSummaryContainer.appendChild(card);
+            
+            // Logika untuk kartu "SP10K Axis ex School" agar muncul setelah kartu Axis
+            if (key === 'axis' && activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
+                 const spAxisSchoolProduct = gudangSummary.find(p => p.nama.trim().toLowerCase() === 'sp10k axis ex school');
+                 if (spAxisSchoolProduct && spAxisSchoolProduct.stok > 0) {
+                     const spAxisCard = document.createElement('div');
+                     spAxisCard.className = 'summary-card';
+                     spAxisCard.innerHTML = `<h4>Axis ex School</h4><p class="amount">${formatNumber(spAxisSchoolProduct.stok)}</p>`;
+                     gudangSummaryContainer.appendChild(spAxisCard);
+                 }
+            }
         }
 
-        // 4. Logika tambahan: Tampilkan kartu Dompul jika kondisi terpenuhi
+        // 4. Logika tambahan: Tampilkan kartu Dompul jika filter 'kartu-perdana' dan 'kosongan' aktif
         if (activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
-            // Ambil total stok dari semua produk dengan tipe 'dompul'
             const totalDompul = gudangSummary
                 .filter(p => p.tipe === 'dompul')
                 .reduce((sum, p) => sum + p.stok, 0);
 
-            // Buat dan tambahkan kartu Dompul jika stoknya ada
             if (totalDompul > 0) {
                 const dompulCard = document.createElement('div');
                 dompulCard.className = 'summary-card';
@@ -313,6 +323,83 @@ document.addEventListener('dataReady', function() {
         });
     }
 
+    // --- FUNGSI UNTUK PENGUMUMAN & TAB ---
+ function populateAnnouncements() {
+    const container = document.getElementById('pengumumanContent');
+    if (!container) return;
+
+    // [BARU] Fungsi kecil untuk memilih ikon berdasarkan tipe
+    function getIconForType(type) {
+        if (!type) return 'fas fa-info-circle'; // Ikon default
+        
+        const lowerType = type.toLowerCase().trim();
+        switch(lowerType) {
+            case 'penting':
+                return 'fas fa-triangle-exclamation';
+            case 'perbaikan':
+                return 'fas fa-wrench';
+            case 'info':
+            default:
+                return 'fas fa-info-circle';
+        }
+    }
+
+    const announcements = window.pengumumanData || [];
+
+    if (announcements.length > 0) {
+        let html = '';
+        announcements.forEach(item => {
+            // Panggil fungsi untuk mendapatkan kelas ikon yang sesuai
+            const iconClass = getIconForType(item.Tipe);
+
+            // [DIUBAH] Tambahkan elemen <i> dengan kelas ikon
+            html += `
+                <div class="announcement-item">
+                    <div class="announcement-header">
+                        <h5><i class="${iconClass}"></i> ${item.Judul || 'Tanpa Judul'}</h5>
+                        <span class="date">${item.Tanggal || ''}</span>
+                    </div>
+                    <p>${item.Isi || 'Tidak ada konten.'}</p>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<p class="no-announcement">Tidak ada pengumuman saat ini.</p>';
+    }
+}
+
+    function setupInfoTabs() {
+        const modal = document.getElementById('infoModal');
+        if (!modal) return;
+
+        const tabContainer = modal.querySelector('.modal-tabs');
+        const tabBtns = modal.querySelectorAll('.tab-btn');
+        const tabContents = modal.querySelectorAll('.tab-content');
+
+        if (!tabContainer) return; // Penambahan guard clause
+
+        tabContainer.addEventListener('click', (e) => {
+            const clickedBtn = e.target.closest('.tab-btn');
+            if (!clickedBtn) return;
+
+            const tabId = clickedBtn.dataset.tab;
+
+            // Atur tombol
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+
+            // Atur konten
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    }
+
     // --- EVENT LISTENERS ---
     if (filterGroup) {
         filterGroup.addEventListener('click', (e) => {
@@ -381,8 +468,8 @@ document.addEventListener('dataReady', function() {
             });
         });
     }
-
-    // [BARU] Event listener untuk info modal
+    
+    // Event listener untuk info modal
     if (infoIcon) {
         infoIcon.addEventListener('click', () => {
             if (infoModal) infoModal.classList.add('show');
@@ -405,5 +492,7 @@ document.addEventListener('dataReady', function() {
     populateStokCanvasser();
     syncFilterButtons();
     setupNotifications();
-    setupModalClosers(); // Panggil fungsi penutup modal
+    setupModalClosers(); 
+    populateAnnouncements(); 
+    setupInfoTabs();
 });

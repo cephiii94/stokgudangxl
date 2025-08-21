@@ -722,7 +722,7 @@
     .detail-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
     .detail-summary-cards { gap: 1rem; }
     .detail-stock-chart, .detail-product-table { padding: 1rem; }
-    .notification-dropdown { right: -100px;}
+    .notification-dropdown { right: -80px;}
 }
 
 
