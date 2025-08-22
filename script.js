@@ -55,6 +55,9 @@ document.addEventListener('dataReady', function() {
         return Number(num).toLocaleString('id-ID');
     }
 
+    // =================================================================
+    // [MODIFIKASI] FUNGSI INI DIUBAH SESUAI PERMINTAAN
+    // =================================================================
     // Fungsi untuk mengisi kartu stok gudang
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
@@ -72,6 +75,18 @@ document.addEventListener('dataReady', function() {
             }
             return acc;
         }, {});
+        
+        // =============== [PERUBAHAN DITAMBAHKAN DI SINI] ===============
+        // Secara spesifik mencari produk 'SP10K AXIS Reguler' dari data gudang
+        const spAxisRegulerProduct = gudangSummary.find(p => p.nama.trim().toLowerCase() === 'sp10k axis reguler');
+
+        // Menimpa nilai total untuk 'axis' dengan stok dari produk spesifik tersebut.
+        // Jika produk tidak ditemukan, stoknya akan menjadi 0.
+        // Perubahan ini hanya berlaku jika filter aktif adalah 'kartu-perdana' dan 'kosongan'
+        if (activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
+            totals['axis'] = spAxisRegulerProduct ? spAxisRegulerProduct.stok : 0;
+        }
+        // =============== [AKHIR DARI PERUBAHAN] ===============
 
 
         gudangSummaryContainer.innerHTML = ''; // Bersihkan kartu sebelumnya
