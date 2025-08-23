@@ -40,35 +40,68 @@ document.addEventListener('dataReady', function() {
 
     // --- FUNCTIONS ---
 
+    // =============== [FUNGSI BARU] ===============
+    // Fungsi untuk memeriksa apakah sebuah tanggal (dalam format string) adalah hari ini.
+    function isDateToday(dateString) {
+        if (!dateString || typeof dateString !== 'string') return false;
+
+        // Peta untuk mengubah nama bulan Bahasa Indonesia ke angka (0-11)
+        const monthMap = {
+            'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
+            'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+        };
+
+        const parts = dateString.split(' ');
+        if (parts.length !== 3) return false; // Format harus "DD NAMA_BULAN YYYY"
+
+        const day = parseInt(parts[0], 10);
+        const month = monthMap[parts[1]];
+        const year = parseInt(parts[2], 10);
+
+        if (isNaN(day) || month === undefined || isNaN(year)) return false;
+
+        const updateDate = new Date(year, month, day);
+        const today = new Date();
+
+        // Bandingkan tahun, bulan, dan tanggal
+        return today.getFullYear() === updateDate.getFullYear() &&
+               today.getMonth() === updateDate.getMonth() &&
+               today.getDate() === updateDate.getDate();
+    }
+    // ===============================================
+
+    // =============== [FUNGSI DIPERBARUI] ===============
     // Fungsi untuk menampilkan tanggal update gudang
     function displayGudangUpdateTime() {
         const gudangTimestampEl = document.getElementById('gudang-update-time');
         if (gudangTimestampEl && window.updateTimestamps && window.updateTimestamps.gudang) {
-            gudangTimestampEl.textContent = `Diperbarui: ${window.updateTimestamps.gudang}`;
+            const updateDateStr = window.updateTimestamps.gudang;
+            gudangTimestampEl.textContent = `Diperbarui: ${updateDateStr}`;
+            
+            // Tambahkan kelas 'update-today' jika tanggalnya adalah hari ini
+            if (isDateToday(updateDateStr)) {
+                gudangTimestampEl.classList.add('update-today');
+            }
         } else if (gudangTimestampEl) {
             gudangTimestampEl.textContent = 'Tanggal tidak ditemukan';
         }
     }
+    // ===================================================
 
     // Fungsi untuk format angka
     function formatNumber(num) {
         return Number(num).toLocaleString('id-ID');
     }
 
-    // =================================================================
-    // [MODIFIKASI] FUNGSI INI DIUBAH SESUAI PERMINTAAN
-    // =================================================================
     // Fungsi untuk mengisi kartu stok gudang
     function populateStokGudang() {
         if (!gudangSummaryContainer) return;
 
-        // 1. Filter produk untuk kartu provider berdasarkan filter yang aktif
         const filteredProducts = gudangSummary.filter(p =>
             (activeFilters.jenis ? p.jenis === activeFilters.jenis : true) &&
             (activeFilters.tipe ? p.tipe === activeFilters.tipe : true)
         );
 
-        // 2. Hitung total untuk setiap provider dari produk yang sudah difilter
         const totals = filteredProducts.reduce((acc, p) => {
             if (p.provider) { 
                 acc[p.provider] = (acc[p.provider] || 0) + p.stok;
@@ -76,24 +109,16 @@ document.addEventListener('dataReady', function() {
             return acc;
         }, {});
         
-        // =============== [PERUBAHAN DITAMBAHKAN DI SINI] ===============
-        // Secara spesifik mencari produk 'SP10K AXIS Reguler' dari data gudang
         const spAxisRegulerProduct = gudangSummary.find(p => p.nama.trim().toLowerCase() === 'sp10k axis reguler');
 
-        // Menimpa nilai total untuk 'axis' dengan stok dari produk spesifik tersebut.
-        // Jika produk tidak ditemukan, stoknya akan menjadi 0.
-        // Perubahan ini hanya berlaku jika filter aktif adalah 'kartu-perdana' dan 'kosongan'
         if (activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
             totals['axis'] = spAxisRegulerProduct ? spAxisRegulerProduct.stok : 0;
         }
-        // =============== [AKHIR DARI PERUBAHAN] ===============
 
-
-        gudangSummaryContainer.innerHTML = ''; // Bersihkan kartu sebelumnya
+        gudangSummaryContainer.innerHTML = '';
         const providers = { xl: 'XL', axis: 'Axis', smartfren: 'Smartfren' };
         const isPaketActive = activeFilters.tipe === 'paket';
 
-        // 3. Tampilkan kartu untuk setiap provider
         for (const key in providers) {
             const card = document.createElement('div');
             card.className = 'summary-card';
@@ -105,7 +130,6 @@ document.addEventListener('dataReady', function() {
             }
             gudangSummaryContainer.appendChild(card);
             
-            // Logika untuk kartu "SP10K Axis ex School" agar muncul setelah kartu Axis
             if (key === 'axis' && activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
                  const spAxisSchoolProduct = gudangSummary.find(p => p.nama.trim().toLowerCase() === 'sp10k axis ex school');
                  if (spAxisSchoolProduct && spAxisSchoolProduct.stok > 0) {
@@ -117,7 +141,6 @@ document.addEventListener('dataReady', function() {
             }
         }
 
-        // 4. Logika tambahan: Tampilkan kartu Dompul jika filter 'kartu-perdana' dan 'kosongan' aktif
         if (activeFilters.jenis === 'kartu-perdana' && activeFilters.tipe === 'kosongan') {
             const totalDompul = gudangSummary
                 .filter(p => p.tipe === 'dompul')
@@ -132,7 +155,7 @@ document.addEventListener('dataReady', function() {
         }
     }
 
-
+    // =============== [FUNGSI DIPERBARUI] ===============
     // Fungsi untuk mengisi kartu stok canvasser
     function populateStokCanvasser() {
         if (!canvasserGridContainer) return;
@@ -154,11 +177,14 @@ document.addEventListener('dataReady', function() {
             card.className = 'canvasser-card';
             
             const updateTime = window.updateTimestamps.canvassers[name] || 'N/A';
+            // Cek apakah tanggalnya hari ini, lalu siapkan kelas CSS-nya
+            const isTodayClass = isDateToday(updateTime) ? 'update-today' : '';
 
+            // Terapkan kelas CSS 'isTodayClass' ke elemen <small>
             card.innerHTML = `
                 <div class="canvasser-card-header">
                     <h4>${name}</h4>
-                    <small class="update-timestamp-card">
+                    <small class="update-timestamp-card ${isTodayClass}">
                         <i class="fas fa-clock"></i> ${updateTime}
                     </small>
                 </div>
@@ -175,6 +201,7 @@ document.addEventListener('dataReady', function() {
             canvasserGridContainer.appendChild(card);
         }
     }
+    // ===================================================
     
     // Fungsi untuk sinkronisasi tombol filter
     function syncFilterButtons() {
@@ -287,39 +314,17 @@ document.addEventListener('dataReady', function() {
         const notificationDropdown = bellWrapper.querySelector('.notification-dropdown');
         const notificationList = document.getElementById('notification-list');
         const timestamps = window.updateTimestamps;
-        const today = new Date();
         let newNotifications = [];
 
-        const monthMap = { 'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11 };
-
-        function isDateToday(dateString) {
-            if (!dateString || typeof dateString !== 'string') return false;
-            
-            const parts = dateString.split(' '); 
-            if (parts.length !== 3) return false;
-            
-            const day = parseInt(parts[0], 10);
-            const month = monthMap[parts[1]];
-            const year = parseInt(parts[2], 10);
-
-            if (isNaN(day) || month === undefined || isNaN(year)) return false;
-
-            const updateDate = new Date(year, month, day);
-            
-            return today.getFullYear() === updateDate.getFullYear() &&
-                   today.getMonth() === updateDate.getMonth() &&
-                   today.getDate() === updateDate.getDate();
-        }
-
         if (timestamps && timestamps.gudang && isDateToday(timestamps.gudang)) {
-            newNotifications.push(`<li><strong>Stok Gudang</strong> telah diperbarui pada ${timestamps.gudang}.</li>`);
+            newNotifications.push(`<li><strong>Stok Gudang</strong> telah diperbarui hari ini.</li>`);
         }
 
         if (timestamps && timestamps.canvassers) {
             for (const canvasserName in timestamps.canvassers) {
                 const date = timestamps.canvassers[canvasserName];
                 if (isDateToday(date)) {
-                    newNotifications.push(`<li><strong>Stok ${canvasserName}</strong> telah diperbarui pada ${date}.</li>`);
+                    newNotifications.push(`<li><strong>Stok ${canvasserName}</strong> telah diperbarui hari ini.</li>`);
                 }
             }
         }
@@ -343,9 +348,8 @@ document.addEventListener('dataReady', function() {
     const container = document.getElementById('pengumumanContent');
     if (!container) return;
 
-    // [BARU] Fungsi kecil untuk memilih ikon berdasarkan tipe
     function getIconForType(type) {
-        if (!type) return 'fas fa-info-circle'; // Ikon default
+        if (!type) return 'fas fa-info-circle';
         
         const lowerType = type.toLowerCase().trim();
         switch(lowerType) {
@@ -364,10 +368,7 @@ document.addEventListener('dataReady', function() {
     if (announcements.length > 0) {
         let html = '';
         announcements.forEach(item => {
-            // Panggil fungsi untuk mendapatkan kelas ikon yang sesuai
             const iconClass = getIconForType(item.Tipe);
-
-            // [DIUBAH] Tambahkan elemen <i> dengan kelas ikon
             html += `
                 <div class="announcement-item">
                     <div class="announcement-header">
@@ -392,7 +393,7 @@ document.addEventListener('dataReady', function() {
         const tabBtns = modal.querySelectorAll('.tab-btn');
         const tabContents = modal.querySelectorAll('.tab-content');
 
-        if (!tabContainer) return; // Penambahan guard clause
+        if (!tabContainer) return;
 
         tabContainer.addEventListener('click', (e) => {
             const clickedBtn = e.target.closest('.tab-btn');
@@ -400,11 +401,9 @@ document.addEventListener('dataReady', function() {
 
             const tabId = clickedBtn.dataset.tab;
 
-            // Atur tombol
             tabBtns.forEach(btn => btn.classList.remove('active'));
             clickedBtn.classList.add('active');
 
-            // Atur konten
             tabContents.forEach(content => {
                 if (content.id === tabId) {
                     content.classList.remove('hidden');
@@ -466,7 +465,6 @@ document.addEventListener('dataReady', function() {
         });
     }
 
-    // Event listener untuk menutup semua modal
     function setupModalClosers() {
         const allModals = document.querySelectorAll('.modal');
         allModals.forEach(modal => {
@@ -484,14 +482,12 @@ document.addEventListener('dataReady', function() {
         });
     }
     
-    // Event listener untuk info modal
     if (infoIcon) {
         infoIcon.addEventListener('click', () => {
             if (infoModal) infoModal.classList.add('show');
         });
     }
 
-    // Event listener untuk menutup dropdown notifikasi
     document.addEventListener('click', (e) => {
         const dropdown = document.querySelector('.notification-dropdown');
         const bellWrapper = document.querySelector('.notification-wrapper');

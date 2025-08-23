@@ -347,6 +347,14 @@
     gap: 0.3rem;
 }
 
+/* =============== [PERUBAHAN] Gaya untuk tanggal update hari ini =============== */
+.update-timestamp.update-today,
+.update-timestamp-card.update-today {
+    color: #22c55e; /* Warna hijau cerah */
+    font-weight: 600;
+}
+/* ============================================================================ */
+
 .canvasser-card .stock-info {
     font-size: 0.9rem;
 }
